@@ -33,19 +33,18 @@ pub enum TushareError {
 
     /// Represents a failure to converting json to polars dataframe
     #[error("Convert json to polars dataframe error")]
-    PolarsError(#[from] polars::error::PolarsError)
+    PolarsError(#[from] polars::error::PolarsError),
 }
 
 /// Used to specify API parameter pairs
 pub type Dict = HashMap<String, String>;
 
-fn mergedict(map_pre:Dict, map_post:Dict) -> Dict{
+fn mergedict(map_pre: Dict, map_post: Dict) -> Dict {
     map_pre.into_iter().chain(map_post).collect()
 }
 
-
 /// A tushare query that satistfies rust builder pattern.
-/// The QueryBuilder is immutable, which means a new instance 
+/// The QueryBuilder is immutable, which means a new instance
 /// of QueryBuilder will be created during params()/addparam()/fields() calling.
 /// So it is safe for multi-threading
 pub struct QueryBuilder<'a> {
@@ -88,17 +87,17 @@ impl<'a> QueryBuilder<'a> {
     /// The main purpose of parameters is to define your requirements clearly.
     /// # k/v
     /// The predefined request key/value pair according to each api_name, e.g. 'start_date', 'end_date'
-    pub fn addparam(self: &Self, k:&str, v:&str) -> Self{
+    pub fn addparam(self: &Self, k: &str, v: &str) -> Self {
         let new_paramdict = Dict::from([(k.to_string(), v.to_string())]);
         let paramdict = match &self.params {
-            Some(dict) => mergedict(dict.clone(),new_paramdict),
-            None => new_paramdict
+            Some(dict) => mergedict(dict.clone(), new_paramdict),
+            None => new_paramdict,
         };
-        QueryBuilder{
+        QueryBuilder {
             tushare: self.tushare,
             api_name: self.api_name.clone(),
             params: Some(paramdict),
-            fields: self.fields.clone(),            
+            fields: self.fields.clone(),
         }
     }
     /// Set the return fields to the query.
@@ -145,7 +144,7 @@ impl<'a> QueryBuilder<'a> {
         }
     }
 
-    fn json_reformat(resp_json:Value) -> Result<Vec<Value>, TushareError>{
+    fn json_reformat(resp_json: Value) -> Result<Vec<Value>, TushareError> {
         let mut data_json: Vec<Value> = vec![];
         let fields_json = resp_json["data"]["fields"]
             .as_array()
@@ -157,7 +156,7 @@ impl<'a> QueryBuilder<'a> {
                 .ok_or(TushareError::DataError(format!("data/fields at {i}")))?;
             fields.push(_field);
         }
-        let data= resp_json["data"]["items"]
+        let data = resp_json["data"]["items"]
             .as_array()
             .ok_or(TushareError::DataError("data/items".to_string()))?;
         for (i, item) in data.iter().enumerate() {
@@ -171,9 +170,7 @@ impl<'a> QueryBuilder<'a> {
             data_json.push(Value::Object(item_json))
         }
         Ok(data_json)
-
     }
-
 
     /// Query API predefined request type & parameters and return a Data Frame as output
     /// Fundamental entry for every tushare data access.
@@ -193,7 +190,7 @@ impl<'a> QueryBuilder<'a> {
         info!("Network return:\n {}\n", resp_text);
         let resp_json: Value = serde_json::from_str(&resp_text)?;
         if let Some(ret_code) = resp_json["code"].as_i64() {
-            info!("resp code: {:?}", ret_code);    
+            info!("resp code: {:?}", ret_code);
             if ret_code != 0 {
                 let code = resp_json["code"].as_str().unwrap_or("unknown");
                 let msg = resp_json["msg"].as_str().unwrap_or("unknown");
@@ -206,8 +203,8 @@ impl<'a> QueryBuilder<'a> {
         let data_json = Self::json_reformat(resp_json)?;
         let data_str = serde_json::to_string(&data_json)?;
         info!("data_str: {}", data_str);
-        if data_str == "" || data_str == "[]"{
-            return Err(TushareError::EmptyError)
+        if data_str == "" || data_str == "[]" {
+            return Err(TushareError::EmptyError);
         }
         let cursor = Cursor::new(data_str);
         let df = JsonReader::new(cursor).finish()?;

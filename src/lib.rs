@@ -20,14 +20,14 @@
 //! from ProV1denCEX. I personally found it very useful, together with other optional fields.
 //! 3. Param k/v, fields are defined clearly on Tushare website, see example <https://tushare.pro/document/2?doc_id=25>
 //! 4. Be aware of date string. They must be in *YYYYMMDD* format. Otherwise empty data will be returned.
-//! 5. The date column of dataframe are *String* type by tushare server. You could tranform the whole column to datetime using Polars by yourself. 
-//! 
+//! 5. The date column of dataframe are *String* type by tushare server. You could tranform the whole column to datetime using Polars by yourself.
+//!
 //! ## Recommended error handling flow
 //! See [TushareError] for error definition details.
 //! The only place that will produce an error is the query() method of QueryBuilder. The recommended error handling flow is:
 //! 1. NetworkError occurs during http request. You may want to retry if your network is not stable.
 //! 2. RequestError occurs if Tushare server explicity return a nonzero code in its body. See error message for more details. Possible reason: wrong token
-//! 3. JsonError/DataError occur if body returned by Tushare server is not the same as document. Normally this won't happen. 
+//! 3. JsonError/DataError occur if body returned by Tushare server is not the same as document. Normally this won't happen.
 //! You could set the log level to "Info" and check the log for the request and response body.
 //! 4. EmptyError occurs if Tushare return zero rows of data. Because this makes it impossible to infer the data type of each columns, it was marked as error.
 //! Usually you can check if wrong date format is used. The correct format is "20240404".
@@ -35,10 +35,8 @@
 
 pub mod builder;
 pub mod tushare;
-pub use tushare::Tushare;
 pub use builder::{Dict, QueryBuilder, TushareError};
-
-
+pub use tushare::Tushare;
 
 #[cfg(test)]
 mod tests {
@@ -46,11 +44,15 @@ mod tests {
     #[test]
     fn test_query() {
         let tushare = Tushare::new("<token here>");
-        let input: Dict= Dict::from([("start_date".into(), "2023-01-01".into()), ("end_date".into(), "2024-04-23".into())]);
-        let df = tushare.querybuilder("daily")
-                .params(input)
-                .fields("ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol")
-                .query();
+        let input: Dict = Dict::from([
+            ("start_date".into(), "2023-01-01".into()),
+            ("end_date".into(), "2024-04-23".into()),
+        ]);
+        let df = tushare
+            .querybuilder("daily")
+            .params(input)
+            .fields("ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol")
+            .query();
         print!("here are the results");
         print!("{df:?}");
     }
