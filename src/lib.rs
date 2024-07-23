@@ -43,6 +43,7 @@ mod tests {
     use std::env;
 
     use super::*;
+
     #[test]
     fn test_query() {
         let token =
@@ -53,7 +54,7 @@ mod tests {
             ("end_date".into(), "2024-04-23".into()),
         ]);
         let df = tushare
-            .querybuilder("daily")
+            .query_builder("daily")
             .params(input)
             .fields("ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol")
             .query();

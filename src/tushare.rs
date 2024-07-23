@@ -24,7 +24,7 @@ impl Tushare {
 
     /// Create a QueryBuilder to actually build and process the query
     /// # api_name:
-    pub fn querybuilder(self: &Self, api_name: &str) -> QueryBuilder {
+    pub fn query_builder(self: &Self, api_name: &str) -> QueryBuilder {
         QueryBuilder::new(self, api_name)
     }
 }

@@ -87,7 +87,7 @@ impl<'a> QueryBuilder<'a> {
     /// The main purpose of parameters is to define your requirements clearly.
     /// # k/v
     /// The predefined request key/value pair according to each api_name, e.g. 'start_date', 'end_date'
-    pub fn addparam(self: &Self, k: &str, v: &str) -> Self {
+    pub fn add_param(self: &Self, k: &str, v: &str) -> Self {
         let new_paramdict = Dict::from([(k.to_string(), v.to_string())]);
         let paramdict = match &self.params {
             Some(dict) => mergedict(dict.clone(), new_paramdict),
