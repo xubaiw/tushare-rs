@@ -13,6 +13,7 @@ repository = "https://github.com/leonchen2012/tushare"
 
 [dependencies]
 log = "0.4.21"
+paste = "1.0.15"
 polars = { version = "0.39.2", features = ["lazy", "json"] }
 reqwest = { version = "0.12.4", features = ["blocking"]}
 serde_json = "1.0.116"
