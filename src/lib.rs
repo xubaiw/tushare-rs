@@ -40,10 +40,14 @@ pub use tushare::Tushare;
 
 #[cfg(test)]
 mod tests {
+    use std::env;
+
     use super::*;
     #[test]
     fn test_query() {
-        let tushare = Tushare::new("<token here>");
+        let token =
+            env::var("TUSHARE_TOKEN").expect("fail to find the TUSHARE_TOKEN environment variable");
+        let tushare = Tushare::new(&token);
         let input: Dict = Dict::from([
             ("start_date".into(), "2023-01-01".into()),
             ("end_date".into(), "2024-04-23".into()),
